@@ -11,8 +11,9 @@
 <style lang="scss" scoped>
     .container 
     {
-        max-width: 1820px;
-        padding: 16px;
+        max-width: 1720pxx;
+        padding: 0 16px;
         margin: 0 auto;
+        margin-top: 100px;
     }
 </style>

@@ -1,6 +1,6 @@
-import { defineStore } from "pinia";
-import { api, websocket_api } from '../app/api'
+import { defineStore } from 'pinia'
 import {ref} from 'vue'
+import { api, websocket_api } from '../api'
 export const useStationStore = defineStore('station',()=>
 {
     const stations = ref([])
@@ -38,28 +38,6 @@ export const useStationStore = defineStore('station',()=>
             throw error
         }
     }
-    async function getWaysForTrain(uuid) {
-        try {
-            const filteredStations = stations.value.filter((station) => {
-                if (!station.info) {
-                    return false;
-                }
-                if (station.info.train_present) {
-                    return false;
-                }
-                if (station.info.train_enroute) {
-                    return station.uuid !== uuid;
-                }
-                return true; 
-            });
-    
-            return filteredStations;
-        } catch (error) {
-            console.error('Error in getWaysForTrain:', error);
-            throw error;
-        }
-    }
-    
-    return  {getStations,stations,fetchStationInfo,updateStationInfo,getWaysForTrain}
+    return  {getStations,stations,fetchStationInfo,updateStationInfo}
 }
 )

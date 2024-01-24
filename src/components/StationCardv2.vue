@@ -98,8 +98,9 @@ const saveStation = async () => {
 
 <style lang="scss" scoped>
 .station {
-    padding: 20px;
-    border: 1px solid var(--border-color);
+    background-color: rgb(29, 29, 29);;
+    min-width: 380px;
+    padding: 20px 20px;
     border-radius: 6px;
     position: relative;
  
@@ -121,20 +122,21 @@ const saveStation = async () => {
     }
     &__go 
     {
-        padding: 10px;
+        font-family: "Montserrat", sans-serif;
+        padding: 10px 20px;
         border:none;
         border-radius:6px;
         color:white;
-        background-color: rgb(89, 233, 89); 
+        background-color: var(--orange);
         transition: 0.2s ease-in-out;
         max-width: 100px;
         &:hover 
         {
-            background-color: darkgreen;
+            background-color: var(--dark-orange);
         }
         &:active
         {
-            background-color: rgb(29, 29, 29);
+            background-color: black;
         }
     }
     &__train {
@@ -151,7 +153,7 @@ const saveStation = async () => {
         top: 10px;
         right: 10px;
         border:none;
-        border-radius:50%;
+        border-radius:6px;
         padding: 2px;
         aspect-ratio: 1/1;
         background-color: transparent;
@@ -161,19 +163,13 @@ const saveStation = async () => {
         z-index: 10;
 
         &:hover {
-            background-color: rgb(89, 233, 89); 
-            & svg 
-            {
-                fill: white;
-            }
+            background-color: var(--orange);
+           
         }
 
         &:active {
-            background-color: darkgreen;
-            & svg 
-            {
-                fill: white;
-            }
+            background-color: black;
+          
         }
     }
 
@@ -184,9 +180,19 @@ const saveStation = async () => {
     }
 
     &__select {
+        background-color:transparent;
+        padding: 5px;
+        color:white;
+        border-radius:4px;
+        border: 1px solid gray;
         display: block;
         width: 100%;
         margin-bottom: 10px;
+        option 
+        {
+            background-color: rgb(43, 43, 43);
+           
+        }
     }
     &__checkBox 
     {
@@ -204,7 +210,8 @@ const saveStation = async () => {
           width: 100%;
             border: none;
             font-size: 24px;
-       
+            background-color:transparent;
+            color:white;
         }
 
         margin-bottom: 2px;
