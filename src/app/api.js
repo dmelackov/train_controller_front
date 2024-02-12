@@ -1,7 +1,7 @@
 import axios from "axios";
 import mitt from "mitt";
 
-axios.defaults.baseURL = "http://owbalancer.ddns.net:8765";
+axios.defaults.baseURL = "http://owbalancer.ddns.net:8765/api";
 
 export const api = {
   async get_stations() {
@@ -13,6 +13,18 @@ export const api = {
   async set_station_name(station, name) {
     let data = await axios.post("/station/" + station, { station_name: name });
     return data;
+  },
+  async get_factories() {
+    return (await axios.get("/factories")).data;
+  },
+  async get_factory_info(factory) {
+    return (await axios.get("/factories/" + factory)).data;
+  },
+  async get_factory_inventory(factory, inventory) {
+    return (await axios.get(`/inventory/${factory}/${inventory}`)).data;
+  },
+  async get_config() {
+    return (await axios.get("/factory_config")).data;
   },
   async set_station_schedule(
     source_station,

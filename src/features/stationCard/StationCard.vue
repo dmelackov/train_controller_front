@@ -4,14 +4,21 @@
       <saveIcon />
     </button>
     <dl class="station__info">
-      <dt class="station__uuid"  @click="copy(uuidCopy)">{{ stationProps.station.uuid }}</dt>
-      <div class="station__train train">
+      <dt class="station__uuid"  @click="copy(uuidCopy)">{{ station.uuid }}</dt>
+      <div class="station__train train" >
         <div class="train__name">
+          <trainIcon v-if="station.info?.train_present"/>
           <div class="train__info">
-            {{ stationProps.station.info?.train_name }}
-            <div class="train__status"></div>
+            <p v-if="station.info?.train_present">
+              {{ station.info?.train_name }}
+            </p>
+            <p v-if="!station.info?.train_present && station.info?.train_enroute">
+              Enroute
+            </p>
+            <p v-if="!station.info?.train_present && !station.info?.train_enroute">
+              Not present
+            </p>
           </div>
-          <trainIcon />
         </div>
         <div class="station__controls">
           <dd class="station__change">
@@ -19,52 +26,38 @@
 
             <changeIcon />
           </dd>
-          <arrowIcon />
-          <select class="station__select" v-model="selectedStation">
+          <arrowIcon v-if="station.info?.train_present"/>
+          <select class="station__select" v-model="selectedStation" v-if="station.info?.train_present">
             <option disabled value="">Выбрать станцию</option>
-            <option :value="station.name" v-for="station in stationProps.sortedByStantion" :key="station">{{station.name}}</option>
+            <option :value="station_.uuid" v-for="station_ in route_stations" :key="station_.uuid">{{station_.name}}</option>
           </select>
         </div>
-        <div class="train__checkbox">
+        <div class="train__checkbox" v-if="station.info?.train_present">
           <label for="twoWay">В две стороны?</label>
           <input type="checkbox" class="train__way" id="twoWay" v-bind="twoWay">
         </div>
       </div>
-      <Button @click="goToStation">Go</Button>
+      <Button @click="goToStation" v-if="station.info?.train_present">Go</Button>
     </dl>
-    <div class="inventory">
-      Inventory
-      <div class="inventory__container">
-        <div class="inventory__item" v-for="item in stationProps.station.info?.inventories" :key="item">
-           {{ item }}
-        </div>
-      </div>
-      <div class="inventory__more">
-        <button class="inventory__btn" >
-          <showArrowIcon />
-        </button>
-      </div>
-    </div>
-
   </div>
 </template>
   
 <script setup>
-import showArrowIcon from '@/shared/icon/showArrowIcon.vue';
 import saveIcon from '@/shared/icon/saveIcon.vue';
 import changeIcon from '@/shared/icon/changeIcon.vue'
 import trainIcon from '@/shared/icon/trainIcon.vue';
 import arrowIcon from '@/shared/icon/arrowIcon.vue';
 import Button from '@/shared/button/Button.vue';
 import { api } from '@/app/api';
-import { defineProps,ref, watch} from 'vue'
+import { computed, defineProps,ref, watch} from 'vue'
 import { useClipboard } from '@vueuse/core'
+import { useStationStore } from '@/app/store/stationStore';
 //Пропс с Stations.vue
 const stationProps = defineProps( {
-  station: Object,           
-  sortedByStantion: Array       
+  station: Object     
 })
 
+const stationStore = useStationStore()
 const uuidCopy  = ref(stationProps.station.uuid) 
 const { copy } = useClipboard({ uuidCopy })
 
@@ -78,6 +71,20 @@ watch(() => stationProps.station.info?.station_name, (newValue) => {
 const selectedStation = ref('')
 //Выбор туда-сюда
 const twoWay = ref(false)
+
+const route_stations = computed(()=> {
+    return stationStore.stations.slice().filter((station)=>{
+        if (!station.info)
+            return false
+        if (station.uuid == stationProps.station_uuid)
+            return false
+        if (station.info.train_present)
+            return false
+        if (station.info.train_enroute)
+            return false
+        return true
+    })
+})
 
 //Сохранение имени станции
 //Я хуй его знает что с сохнанением но я попытался сделать номальную отладку чтобы ты понял что не так 
@@ -100,6 +107,7 @@ const saveStation = async()=>
 //Выбор станции  (надо допилить перебор массива чтобы исключить станцию с которой ты выбераешь)
 const goToStation = async ()=>
 {
+  if (selectedStation.value == "") return
   try
   {
     console.log(`Пришло: uuid:${stationProps.station.uuid}, select:${selectedStation.value}`)
@@ -107,7 +115,8 @@ const goToStation = async ()=>
       stationProps.station.uuid,      //uuid пропса
       selectedStation.value,          //Выбранная станция
       twoWay.value)                   //Выбор туда-сюда
-    console.log(`Станция ${stationProps.station.name} uuid:${stationProps.station.uuid}. Отправлена на ${selectedStation.value}. В две стороны? ${twoWay.value}`)
+    selectedStation.value = ""
+      console.log(`Станция ${stationProps.station.name} uuid:${stationProps.station.uuid}. Отправлена на ${selectedStation.value}. В две стороны? ${twoWay.value}`)
   }
   catch(error)
   {
@@ -118,63 +127,6 @@ const goToStation = async ()=>
 </script>
   
 <style lang="scss" scoped>
-.inventory {
-  font-size: 20px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 100%;
-
-  &__items {
-    background-color: rgb(39, 39, 39);
-    color: white;
-    margin-top: -5px;
-    padding: 10px;
-  }
-
-  &__btn {
-    cursor: pointer;
-    transition: 0.1s ease-in;
-    border-radius: 6px;
-    padding: 2px 10px;
-
-    &:hover {
-
-      svg {
-        transition: 0.2s ease-in;
-        fill: var(--orange) !important;
-
-      }
-    }
-
-  }
-
-  &__more {
-    display: flex;
-    justify-content: center;
-
-  }
-
-  &__container {
-
-    padding-top: 5px;
-    padding-right: 20px;
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 10px;
-    width: 100%;
-
-  }
-
-  &__item {
-    font-size: 12px;
-    width: fit-content;
-    height: fit-content;
-  }
-}
 
 button {
   background-color: transparent;
@@ -220,7 +172,7 @@ button {
     align-items: center;
 
     & svg {
-      margin-left: 16px;
+      margin-right: 16px;
     }
   }
 
@@ -238,6 +190,8 @@ button {
   border-radius: 10px;
   color: white;
   padding: 10px;
+  width: 500px;
+  height: 192px;
 
   &__select {
     padding: 6px;
@@ -271,6 +225,7 @@ button {
   }
 
   &__info {
+    min-width: 450px;
     display: flex;
     flex-direction: column;
   }
