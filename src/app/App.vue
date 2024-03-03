@@ -18,7 +18,9 @@ import { RouterView } from 'vue-router'
 // import { onMounted, computed, ref } from 'vue';
 // import { websocket_api } from './api';
 // import Loader from './components/Loader.vue';
-
+import { websocket_api } from '@/app/api';
+import { useStationStore } from '@/store/stationStore';
+import { onMounted } from 'vue';
 
 
 
@@ -43,7 +45,11 @@ import { RouterView } from 'vue-router'
 //   await store.getStations()
 //   IsLoading.value = false
 // });
-
+  onMounted(async () => {
+    websocket_api.open()
+    await useStationStore().getStations()
+  })
+  
 
 
 </script>

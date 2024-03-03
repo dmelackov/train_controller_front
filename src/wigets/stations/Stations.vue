@@ -9,8 +9,7 @@
 <script setup>
 import StationCard from '@/features/stationCard/StationCard.vue';
 import { useStationStore } from '@/store/stationStore';
-import { websocket_api } from '@/app/api';
-import { onMounted, computed } from 'vue';
+import { computed } from 'vue';
 const stationStore = useStationStore()
 
 //Сортировка по станциям с поездами (чет не то надо переделать)
@@ -26,16 +25,7 @@ const sortedByStantion = computed(() => {
         return 0
     });
 });
-// Коннект к сокету 
-onMounted(async () => {
-    try {
-        websocket_api.open()
-        await stationStore.getStations()
-    }
-    catch (error) {
-        console.error('Ошибка вебсокета', error)
-    }
-})
+// Коннект к сокету
 </script>
 
 <style lang="scss" scoped>

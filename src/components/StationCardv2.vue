@@ -1,7 +1,7 @@
 <template>
     <div class="station">
         <button class="station__save" @click="saveStation">
-            <saveIcon />
+            <saveIcon class="station__save__icon"/>
         </button>
         <dl class="station__info">
             <dd class="station__uuid">{{ station_uuid }}</dd>
@@ -97,6 +97,7 @@ const saveStation = async () => {
 </script>
 
 <style lang="scss" scoped>
+
 .station {
     background-color: rgb(29, 29, 29);;
     min-width: 380px;
@@ -144,11 +145,6 @@ const saveStation = async () => {
     }
 
     &__save {
-        & svg {
-            height: 24px;
-     
-        }
-
         position: absolute;
         top: 10px;
         right: 10px;
@@ -156,7 +152,7 @@ const saveStation = async () => {
         border-radius:6px;
         padding: 2px;
         aspect-ratio: 1/1;
-        background-color: transparent;
+        //background-color: transparent;
      
         transition: 0.2s ease-in-out;
         cursor: pointer;

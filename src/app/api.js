@@ -52,6 +52,8 @@ class WebSocketManager {
         self.emitter.emit("update_station", { uuid: json.uuid });
       if (json.action == "update_station_list")
         self.emitter.emit("update_station_list");
+      if (json.action == "update_inventory")
+        self.emitter.emit("update_inventory", {factory_uuid: json.factory, inventory_name: json.inventory});
     });
   }
   sendMessage(data) {
@@ -60,4 +62,3 @@ class WebSocketManager {
 }
 
 export const websocket_api = new WebSocketManager();
-console.log(websocket_api);
