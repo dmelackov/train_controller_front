@@ -1,16 +1,12 @@
 <template>
   <Container>
-    <Header/>
-    <Factories/>
+    <Header />
+    <Factories />
   </Container>
 </template>
 
 <script setup>
-import Header from '@/wigets/header/Header.vue';
+import Header from '@/wigets/header/Header.vue'
 import Factories from '../../wigets/factories/Factories.vue'
-import Container from '../../shared/container/Container.vue';
+import Container from '../../shared/container/Container.vue'
 </script>
-
-<style lang="scss" scoped>
-  
-</style>

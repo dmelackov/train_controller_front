@@ -1,43 +1,88 @@
 import { defineStore } from 'pinia'
-import {ref} from 'vue'
-import { api, websocket_api } from '../api'
-export const useStationStore = defineStore('station',()=>
-{
-    const stations = ref([])
+import { api, websocketApi } from '../api'
+import { ref } from 'vue'
+export const useStationStore = defineStore('station', () => {
+  const stations = ref([])
 
-    websocket_api.emitter.on("update_station_list", getStations);
-    websocket_api.emitter.on("update_station", (event) => {
-        updateStationInfo(event.uuid)
-    })
+  websocketApi.emitter.on('update_station_list', getStations())
+  websocketApi.emitter.on('update_station', (event) => {
+    updateStationInfo(event.uuid)
+  })
+  /**
+   * @async
+   */
+  async function getStations() {
+    try {
+      stations.value = await api.getStations()
 
-    async function getStations(){
-        try {
-            stations.value = await api.get_stations();
-            
-           await Promise.all(stations.value.map(async (station) => {
-                if(station.info)
-                    return;
-                station.info = await fetchStationInfo(station.uuid)
-            }))
-          } catch (error) {
-            console.error("Ошибка при инициализации компонента:", error);
-          }
-    }
-    async function updateStationInfo(uuid){
-        stations.value.find((st) => st.uuid == uuid).info = await fetchStationInfo(uuid)
-    }
-
-    async function fetchStationInfo(uuid)
-    {
-        try{
-            return await api.get_station_info(uuid);
+      const stationsPromises = stations.value.map(async (station) => {
+        if (!station.info) {
+          station.info = await fetchStationInfo(station.uuid)
         }
-        catch(error)
-        {
-            console.error('Ошибка фетча информации', error)
-            throw error
-        }
+      })
+      await Promise.all(stationsPromises)
+    } catch (error) {
+      console.error('Ошибка при инициализации компонента:', error)
     }
-    return  {getStations,stations,fetchStationInfo,updateStationInfo}
-}
-)
+  }
+
+  /**
+   * @async
+   * @param {string} uuid
+   */
+  async function updateStationInfo(uuid) {
+    try {
+      stations.value.find((st) => st.uuid == uuid).info = await fetchStationInfo(uuid)
+    } catch (error) {
+      console.error(`Ошибка обновления станций:${uuid}`, error)
+    }
+  }
+
+  /**
+   * @async
+   * @param {string} uuid
+   * @returns {Promise<Object>}
+   */
+
+  async function fetchStationInfo(uuid) {
+    try {
+      return await api.getStationInfo(uuid)
+    } catch (error) {
+      console.error('Ошибка фетча информации', error)
+      throw error
+    }
+  }
+  /**
+   * @async
+   * @param {string} uuid
+   * @returns {Promise<boolean>}
+   */
+  async function getWaysForTrain(uuid) {
+    try {
+      if (!Array.isArray(stations.value)) {
+        throw new Error('station.value не массив')
+      }
+      const filteredStations = stations.value.filter((station) => {
+        if (!station.info || station.info.train_present) {
+          return false
+        }
+        if (station.info.train_enroute) {
+          return station.uuid !== uuid
+        }
+        return true
+      })
+      return filteredStations
+    } catch (error) {
+      console.error('Error in getWaysForTrain:', error)
+      throw error
+    }
+  }
+
+  return {
+    getStations,
+    stations,
+    fetchStationInfo,
+    updateStationInfo,
+    getWaysForTrain
+  }
+})
