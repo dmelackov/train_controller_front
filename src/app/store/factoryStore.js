@@ -1,32 +1,61 @@
 import { defineStore } from 'pinia'
 import { api, websocketApi } from '../api'
 import { ref } from 'vue'
+
+/**
+ * @typedef {Object.<string, ItemStack>} Items
+ */
+
+/**
+ * @typedef {Object} Inventory
+ * @property {number} max_slots - Max slots
+ * @property {number} used_slots - Used slots
+ * @property {Items} items - Name and info about items
+ */
+
+/**
+ * @typedef {Object} Factory
+ * @property {string} uuid
+ * @property {Inventory} inventories
+ */
+
 export const useFactoryStore = defineStore('factory', () => {
   const factories = ref([])
 
   websocketApi.emitter.on('update_inventory', (event) => {
     updateInventoryInfo(event.factory_uuid, event.inventory_name)
   })
+
   /**
    *  @async
    */
+
   async function getFactories() {
     factories.value = await api.getFactories()
-    
-    for (let i = 0; i < factories.value.length; i++) {
-      const element = factories.value[i]
-      factories.value[i] = { uuid: element, inventories: {} }
-    }
-    let promises = factories.value.map(async (factory) => {
-      let info = await fetchFactoryInfo(factory.uuid)
-      for (let i = 0; i < info.inventories.length; i++) {
-        const element = info.inventories[i]
-        factory.inventories[element] = await fetchFactoryInventory(factory.uuid, element)
+
+    factories.value = factories.value.map((element) => ({
+      uuid: element,
+      inventories: {}
+    }))
+    await fetchFactoryDetails(factories.value)
+  }
+
+  /**
+   * @async
+   * @param {Factory[]} factories
+   */
+
+  async function fetchFactoryDetails(factories) {
+    console.log(factories)
+    for (const factory of factories) {
+      const info = await fetchFactoryInfo(factory.uuid)
+      for (const inventory of info.inventories) {
+        factory.inventories[inventory] = await fetchFactoryInventory(factory.uuid, inventory)
       }
       factory.info = info
-    })
-    await Promise.all(promises)
+    }
   }
+
   /**
    * @async
    * @param {string} uuid

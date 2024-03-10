@@ -6,14 +6,6 @@
           {{ station?.name }} --
           {{ station?.info?.train_present ? station?.info?.train_name : 'None' }}
         </p>
-        <p
-          class="buffer__upd"
-          @click="
-            factoryStore.update_inventory_info(bufferProps.factory_uuid, bufferProps.inventory_name)
-          "
-        >
-          Upd
-        </p>
       </div>
       <hr />
       <div class="buffer__item" v-for="item in inventory?.items" :key="item.item_name">
@@ -34,13 +26,11 @@ let factoryStore = useFactoryStore()
 const stationStore = useStationStore()
 
 let inventory = computed(() => {
-
   return factoryStore.getFactory(bufferProps.factory_uuid)?.inventories[bufferProps.inventory_name]
 })
 
-
 let station = computed(() => {
-  return stationStore.stations.find((v) => v.uuid == bufferProps.station_uuid)
+  return stationStore.stations.find((station) => station.uuid == bufferProps.station_uuid)
 })
 
 const bufferProps = defineProps({

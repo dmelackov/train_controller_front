@@ -9,11 +9,11 @@
         <div class="train__name">
           <trainIcon v-if="station.info?.train_present" />
           <div class="train__info">
-            <p v-if="station.info?.train_present">
-              {{ station.info?.train_name }}
+            <p v-if="isTrainPresent">
+              {{ station.info.train_name }}
             </p>
-            <p v-if="!station.info?.train_present && station.info?.train_enroute">Enroute</p>
-            <p v-if="!station.info?.train_present && !station.info?.train_enroute">Not present</p>
+            <p v-else-if="isTrainEnroute">Enroute</p>
+            <p v-else>Not Present</p>
           </div>
         </div>
         <div class="station__controls">
@@ -52,9 +52,14 @@ import { useClipboard } from '@vueuse/core'
 import { useStationStore } from '@/app/store/stationStore'
 
 const stationProps = defineProps({
-  station: Object,
-  default: () => ({})
+  station: {
+    type: Object,
+    default: () => ({})
+  }
 })
+
+const isTrainPresent = computed(() => stationProps.station.info?.train_present)
+const isTrainEnroute = computed(() => stationProps.station.info?.train_enroute)
 const stationStore = useStationStore()
 const uuidCopy = ref(stationProps.station.uuid)
 const { copy } = useClipboard({ uuidCopy })
@@ -209,7 +214,7 @@ const goToStation = async () => {
     width: 34px;
     background-color: transparent;
 
-    &:active {
+    &:hover {
       svg {
         transition: 0.05s ease-in;
 

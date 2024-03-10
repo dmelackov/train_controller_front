@@ -3,14 +3,6 @@
     <div class="buffer__top">
       <div class="buffer__first_line">
         <p class="buffer__name">{{ inventory_name.split(':', 2)[1] }}</p>
-        <p
-          class="buffer__upd"
-          @click="
-            factoryStore.update_inventory_info(bufferProps.factory_uuid, bufferProps.inventory_name)
-          "
-        >
-          Upd
-        </p>
       </div>
       <hr />
       <div class="buffer__item" v-for="item in inventory?.items" :key="item.item_name">

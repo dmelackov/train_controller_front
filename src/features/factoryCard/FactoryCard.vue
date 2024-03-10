@@ -1,6 +1,6 @@
 <template>
   <div class="factory">
-    <p class="factory__uuid">{{ factoryProps.factory_config.uuid }}</p>
+    <p class="factory__uuid" @click="copy(uuidCopy)">{{ factoryProps.factory_config.uuid }}</p>
     <div class="factory__info">
       <p class="factory__name">{{ factoryProps.factory_config.name }}</p>
       <p class="factory__status">- {{ factory_info ? 'Online' : 'Offline' }}</p>
@@ -30,7 +30,8 @@
 </template>
 
 <script setup>
-import { computed, defineProps } from 'vue'
+import { useClipboard } from '@vueuse/core'
+import { computed, defineProps, ref } from 'vue'
 import { useFactoryStore } from '@/app/store/factoryStore'
 import BufferInventoryCard from '@/components/BufferInventoryCard.vue'
 import StationInventoryCard from '@/components/StationInventoryCard.vue'
@@ -40,7 +41,8 @@ const factoryStore = useFactoryStore()
 const factoryProps = defineProps({
   factory_config: Object
 })
-
+const uuidCopy = ref(factoryProps.factory_config.uuid)
+const { copy } = useClipboard({ uuidCopy })
 const factory_info = computed(() => {
   return factoryStore.factories.find((v) => v.uuid == factoryProps.factory_config?.uuid)
 })

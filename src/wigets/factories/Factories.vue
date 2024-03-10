@@ -1,6 +1,10 @@
 <template>
   <div class="factory__container">
-    <div class="factory__wrap" v-for="factory_config in config?.factories" :key="factory_config.uuid">
+    <div
+      class="factory__wrap"
+      v-for="factory_config in config?.factories"
+      :key="factory_config.uuid"
+    >
       <FactoryCard :factory_config="factory_config" />
     </div>
   </div>
@@ -21,7 +25,7 @@ onMounted(async () => {
     config.value = cfg
     await factoryStore.getFactories()
   } catch (error) {
-    console.error("Ошибка подгрузки конфига", error)
+    console.error('Ошибка подгрузки конфига', error)
   }
 })
 </script>

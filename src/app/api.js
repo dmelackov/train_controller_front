@@ -37,7 +37,7 @@ axios.defaults.baseURL = 'http://owbalancer.ddns.net:8765/api'
  */
 
 /**
- * @typedef {Object} Factorie
+ * @typedef {Object} Factory 
  * @property {Array<string>} inventories - Inventories of Factorie
  */
 
@@ -77,7 +77,7 @@ export const api = {
   /**
    * @async
    * @param {string} factory - uuid factory
-   * @returns {Promise<Factorie>}
+   * @returns {Promise<Factory>}
    */
   async getFactoryInfo(factory) {
     return (await axios.get('/factories/' + factory)).data
@@ -122,13 +122,14 @@ class WebSocketManager {
     this.socket = new WebSocket('ws://owbalancer.ddns.net:8765/site')
     const self = this
     this.socket.addEventListener('message', (msg) => {
-      let json = JSON.parse(msg.data)
-      if (json.action == 'update_station') self.emitter.emit('update_station', { uuid: json.uuid })
-      if (json.action == 'update_station_list') self.emitter.emit('update_station_list')
-      if (json.action == 'update_inventory')
+      const json = JSON.parse(msg.data)
+      const { action, uuid, factory, inventory } = json
+      if (action == 'update_station') self.emitter.emit('update_station', { uuid: uuid })
+      if (action == 'update_station_list') self.emitter.emit('update_station_list')
+      if (action == 'update_inventory')
         self.emitter.emit('update_inventory', {
-          factory_uuid: json.factory,
-          inventory_name: json.inventory
+          factory_uuid: factory,
+          inventory_name: inventory
         })
     })
   }
@@ -136,5 +137,4 @@ class WebSocketManager {
     this.socket.send(JSON.stringify(data))
   }
 }
-
 export const websocketApi = new WebSocketManager()
