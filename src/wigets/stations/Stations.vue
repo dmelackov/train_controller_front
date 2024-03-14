@@ -9,18 +9,17 @@
 <script setup>
 import StationCard from '@/features/stationCard/StationCard.vue'
 import { useStationStore } from '@/app/store/stationStore'
-import { computed } from 'vue'
+import { computed, watchEffect } from 'vue'
 const stationStore = useStationStore()
 
 const sortedByStantion = computed(() => {
-  return stationStore.stations.slice().sort((a, b) => {
+  return stationStore.stations.toSorted((a, b) => {
     const hasTrainA = a.info?.train_present || a.info?.train_enroute
     const hasTrainB = b.info?.train_present || b.info?.train_enroute
-    if (hasTrainA && !hasTrainB) return -1
-    if (!hasTrainA && hasTrainB) return 1
-    return 0
+    return hasTrainB - hasTrainA
   })
 })
+watchEffect(() => sortedByStantion)
 </script>
 
 <style lang="scss" scoped>

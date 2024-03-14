@@ -6,7 +6,7 @@
       </div>
       <hr />
       <div class="buffer__item" v-for="item in inventory?.items" :key="item.item_name">
-        {{ item.item_name.split(':', 2)[1] }}
+        {{ inventoryName }}
         {{ item.item_count }} / {{ item.max_stack * item.slots }}
       </div>
     </div>
@@ -18,11 +18,13 @@
 import { defineProps, computed } from 'vue'
 import { useFactoryStore } from '@/app/store/factoryStore'
 
-let factoryStore = useFactoryStore()
+const factoryStore = useFactoryStore()
 
-let inventory = computed(() => {
+const inventory = computed(() => {
   return factoryStore.getFactory(bufferProps.factory_uuid)?.inventories[bufferProps.inventory_name]
 })
+
+const inventoryName = computed(() => bufferProps.inventory_name.split(':', 2)[1])
 
 const bufferProps = defineProps({
   inventory_name: String,
@@ -52,14 +54,6 @@ const bufferProps = defineProps({
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-  }
-
-  &__upd {
-    cursor: pointer;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }
 </style>

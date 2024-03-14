@@ -37,7 +37,7 @@ axios.defaults.baseURL = 'http://owbalancer.ddns.net:8765/api'
  */
 
 /**
- * @typedef {Object} Factory 
+ * @typedef {Object} Factory
  * @property {Array<string>} inventories - Inventories of Factorie
  */
 
@@ -133,6 +133,10 @@ class WebSocketManager {
         })
     })
   }
+  /**
+   * Sends a message via the WebSocket connection.
+   * @param {Object} data - The data to be sent through the WebSocket connection.
+   */
   sendMessage(data) {
     this.socket.send(JSON.stringify(data))
   }

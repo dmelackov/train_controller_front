@@ -7,13 +7,14 @@
       <dt class="station__uuid" @click="copy(uuidCopy)">{{ station.uuid }}</dt>
       <div class="station__train train">
         <div class="train__name">
-          <trainIcon v-if="station.info?.train_present" />
+          <trainIcon />
           <div class="train__info">
             <p v-if="isTrainPresent">
               {{ station.info.train_name }}
             </p>
-            <p v-else-if="isTrainEnroute">Enroute</p>
-            <p v-else>Not Present</p>
+            <p v-else>Train</p>
+            <span class="status"
+              :class="{ enroute: isTrainEnroute && !isTrainPresent, nopresent: !isTrainEnroute }"></span>
           </div>
         </div>
         <div class="station__controls">
@@ -25,7 +26,7 @@
           <arrowIcon v-if="station.info?.train_present" />
           <select class="station__select" v-model="selectedStation" v-if="station.info?.train_present">
             <option disabled value="">Выбрать станцию</option>
-            <option :value="station_.uuid" v-for="station_ in routeStations" :key="station_.uuid">
+            <option :value="station_.uuid" v-for=" station_  in  routeStations " :key="station_.uuid">
               {{ station_.name }}
             </option>
           </select>
@@ -58,13 +59,14 @@ const stationProps = defineProps({
   }
 })
 
+
 const isTrainPresent = computed(() => stationProps.station.info?.train_present)
 const isTrainEnroute = computed(() => stationProps.station.info?.train_enroute)
 const stationStore = useStationStore()
+const selectedStation = ref('')
+const twoWay = ref(false)
 const uuidCopy = ref(stationProps.station.uuid)
 const { copy } = useClipboard({ uuidCopy })
-
-// Название станции
 const stationName = ref(stationProps.station.info?.station_name)
 watch(
   () => stationProps.station.info?.station_name,
@@ -72,12 +74,6 @@ watch(
     stationName.value = newValue
   }
 )
-
-//Выбранная станция
-const selectedStation = ref('')
-//Выбор туда-сюда
-const twoWay = ref(false)
-
 const routeStations = computed(() => {
   return stationStore.stations.filter(({ uuid, info }) => {
     return (
@@ -93,7 +89,7 @@ const saveStation = async () => {
       stationProps.station.uuid, //uuid спропса
       stationName.value //Выбранная станция
     )
-    console.log(`Имя станции сохранено`)
+    console.log(`Имя станции ${stationName.value} сохранено`)
   } catch (error) {
     console.log(
       `Ошибка сохранения имени станции на имя ${stationName.value}. uuid:${stationProps.station.uuid}`,
@@ -103,7 +99,7 @@ const saveStation = async () => {
 }
 
 const goToStation = async () => {
-  if (selectedStation.value == '') return
+  if (selectedStation.value == '' || !selectedStation.value) return
   try {
     console.log(`Пришло: uuid:${stationProps.station.uuid}, select:${selectedStation.value}`)
     await api.setStationSchedule(
@@ -122,8 +118,46 @@ const goToStation = async () => {
 </script>
 
 <style lang="scss" scoped>
+.status {
+  position: absolute;
+  right: -12px;
+  top: 0;
+  width: 8px;
+  height: 8px;
+  transition: 0.2s ease-in-out;
+  animation-name: active;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  border-radius: 100%;
+
+
+}
+
+.nopresent {
+  background-color: red !important;
+}
+
+.enroute {
+  background-color: rgb(238, 202, 0);
+}
+
+@keyframes active {
+  0% {
+    background-color: rgb(66, 209, 0);
+  }
+
+  50% {
+    background-color: rgb(0, 134, 11);
+  }
+
+  100% {
+    background-color: rgb(66, 209, 0);
+  }
+}
+
+
 .train {
-  width: fit-content;
+  width: 100%;
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
@@ -132,6 +166,7 @@ const goToStation = async () => {
   &__checkbox {
     display: flex;
     align-items: center;
+    accent-color: var(--orange);
 
     & label {
       font-size: 16px;
@@ -180,7 +215,7 @@ const goToStation = async () => {
   color: white;
   padding: 10px;
   width: 500px;
-  height: 192px;
+  min-height: 192px;
 
   &__select {
     padding: 6px;
@@ -199,7 +234,9 @@ const goToStation = async () => {
   }
 
   &__controls {
+    width: 100%;
     gap: 20px;
+    justify-content: space-between;
     display: flex;
     flex-direction: row;
     align-items: center;

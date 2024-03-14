@@ -42,7 +42,7 @@ export const useFactoryStore = defineStore('factory', () => {
 
   /**
    * @async
-   * @param {Factory[]} factories
+   * @param {Factory[]} factories - Array of Factories
    */
 
   async function fetchFactoryDetails(factories) {
