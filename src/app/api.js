@@ -60,11 +60,15 @@ export const api = {
   /**
    * @async
    * @param {string} station - Station uuid
-   * @param {string} name - Station name
+   * @param {string} stationName - Station name
+   * @param {string} trainName - Train name
    * @returns {Promise<Object>} - Response by server
    */
-  async setStationName(station, name) {
-    let data = await axios.post('/station/' + station, { station_name: name })
+  async setStationName(station, stationName, trainName) {
+    let data = await axios.post('/station/' + station, {
+      station_name: stationName,
+      train_name: trainName
+    })
     return data
   },
   /**

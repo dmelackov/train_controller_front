@@ -1,32 +1,30 @@
 <template>
   <div class="station">
-    <button class="station__save" @click="saveStation">
+    <button class="station__save" @click="saveStationCard">
       <saveIcon />
     </button>
     <dl class="station__info">
       <dt class="station__uuid" @click="copy(uuidCopy)">{{ station.uuid }}</dt>
       <div class="station__train train">
         <div class="train__name">
-          <trainIcon />
           <div class="train__info">
-            <p v-if="isTrainPresent">
-              {{ station.info.train_name }}
-            </p>
-            <p v-else>Train</p>
+            <input v-if="isTrainPresent" type="text" class="train__input" v-model="trainName" />
+            <p v-else>No train</p>
             <span class="status"
               :class="{ enroute: isTrainEnroute && !isTrainPresent, nopresent: !isTrainEnroute }"></span>
           </div>
+          <trainIcon />
         </div>
         <div class="station__controls">
           <dd class="station__change">
-            <input type="text" class="" v-model="stationName" />
+            <input type="text" v-model="stationName" />
 
             <changeIcon />
           </dd>
           <arrowIcon v-if="station.info?.train_present" />
           <select class="station__select" v-model="selectedStation" v-if="station.info?.train_present">
             <option disabled value="">Выбрать станцию</option>
-            <option :value="station_.uuid" v-for=" station_  in  routeStations " :key="station_.uuid">
+            <option :value="station_.uuid" v-for="station_ in routeStations" :key="station_.uuid">
               {{ station_.name }}
             </option>
           </select>
@@ -59,7 +57,6 @@ const stationProps = defineProps({
   }
 })
 
-
 const isTrainPresent = computed(() => stationProps.station.info?.train_present)
 const isTrainEnroute = computed(() => stationProps.station.info?.train_enroute)
 const stationStore = useStationStore()
@@ -68,10 +65,17 @@ const twoWay = ref(false)
 const uuidCopy = ref(stationProps.station.uuid)
 const { copy } = useClipboard({ uuidCopy })
 const stationName = ref(stationProps.station.info?.station_name)
+const trainName = ref(stationProps.station.info?.train_name)
 watch(
   () => stationProps.station.info?.station_name,
   (newValue) => {
     stationName.value = newValue
+  }
+)
+watch(
+  () => stationProps.station.info?.train_name,
+  (newValue) => {
+    trainName.value = newValue
   }
 )
 const routeStations = computed(() => {
@@ -82,13 +86,12 @@ const routeStations = computed(() => {
   })
 })
 
-const saveStation = async () => {
+const saveStationCard = async () => {
   try {
+    if (trainName.value.trim() == '' || stationName.value.trim() == '') return
     console.log(stationProps.station.uuid, stationName.value)
-    await api.setStationName(
-      stationProps.station.uuid, //uuid спропса
-      stationName.value //Выбранная станция
-    )
+    await api.setStationName(stationProps.station.uuid, stationName.value, trainName.value)
+
     console.log(`Имя станции ${stationName.value} сохранено`)
   } catch (error) {
     console.log(
@@ -102,11 +105,7 @@ const goToStation = async () => {
   if (selectedStation.value == '' || !selectedStation.value) return
   try {
     console.log(`Пришло: uuid:${stationProps.station.uuid}, select:${selectedStation.value}`)
-    await api.setStationSchedule(
-      stationProps.station.uuid, //uuid пропса
-      selectedStation.value, //Выбранная станция
-      twoWay.value
-    )
+    await api.setStationSchedule(stationProps.station.uuid, selectedStation.value, twoWay.value)
     selectedStation.value = ''
     console.log(
       `Станция ${stationProps.station.name} uuid:${stationProps.station.uuid}. Отправлена на ${selectedStation.value}. В две стороны? ${twoWay.value ? 'Да' : 'Нет'}`
@@ -120,7 +119,7 @@ const goToStation = async () => {
 <style lang="scss" scoped>
 .status {
   position: absolute;
-  right: -12px;
+  right: -37px;
   top: 0;
   width: 8px;
   height: 8px;
@@ -129,8 +128,6 @@ const goToStation = async () => {
   animation-duration: 2s;
   animation-iteration-count: infinite;
   border-radius: 100%;
-
-
 }
 
 .nopresent {
@@ -155,13 +152,21 @@ const goToStation = async () => {
   }
 }
 
-
 .train {
   width: 100%;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  &__input {
+    font-family: 'Montserrat', sans-serif;
+    border-radius: 6px;
+    padding: 6px 20px 6px 6px;
+    background-color: rgb(58, 58, 58);
+    border: none;
+    color: white;
+  }
 
   &__checkbox {
     display: flex;
@@ -180,23 +185,12 @@ const goToStation = async () => {
     }
   }
 
-  &__status {
-    position: absolute;
-    right: -10px;
-    top: 0;
-    z-index: 1;
-    aspect-ratio: 1/1;
-    width: 6px;
-    background-color: var(--orange);
-    border-radius: 100%;
-  }
-
   &__name {
     display: flex;
     align-items: center;
 
     & svg {
-      margin-right: 16px;
+      margin-left: 10px;
     }
   }
 
@@ -207,7 +201,6 @@ const goToStation = async () => {
 }
 
 .station {
-  display: flex;
   gap: 40px;
   position: relative;
   background-color: var(--black);
@@ -244,16 +237,24 @@ const goToStation = async () => {
 
   &__save {
     cursor: pointer;
+    background-color: var(--gray);
+    border-radius: 100%;
+    padding: 5px;
     position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     right: 10px;
     top: 10px;
     height: 34px;
     width: 34px;
-    background-color: transparent;
+    transition: 0.1s ease-in-out;
 
     &:hover {
+      background-color: var(--dark-gray);
+
       svg {
-        transition: 0.05s ease-in;
+        transition: 0.1s ease-in-out;
 
         fill: var(--orange);
       }
@@ -261,14 +262,13 @@ const goToStation = async () => {
   }
 
   &__info {
-    min-width: 450px;
     display: flex;
     flex-direction: column;
+    gap: 12px;
   }
 
   &__uuid {
     font-size: 12px;
-    margin-bottom: 10px;
     color: rgb(189, 189, 189);
     cursor: pointer;
   }

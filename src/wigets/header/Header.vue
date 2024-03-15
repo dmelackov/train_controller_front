@@ -2,7 +2,7 @@
   <header class="header">
     <nav class="header__nav nav">
       <ul class="nav__menu">
-        <li class="nav__list" v-for="link in links" :key="link.id">
+        <li class="nav__list" v-for="link in NAV_LINKS" :key="link.id">
           <router-link class="link" :to="link.to">{{ link.title }}</router-link>
         </li>
       </ul>
@@ -12,19 +12,7 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-import { ref } from 'vue'
-const links = ref([
-  {
-    id: 1,
-    title: 'Stations',
-    to: '/'
-  },
-  {
-    id: 2,
-    title: 'Factories',
-    to: '/factories'
-  }
-])
+import { NAV_LINKS } from '@/app/constants'
 </script>
 
 <style lang="scss" scoped>

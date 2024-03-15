@@ -13,9 +13,11 @@
   cursor: pointer;
   font-family: 'Montserrat', sans-serif;
   transition: 0.2s ease-in-out;
+
   &:hover {
     background-color: var(--dark-orange);
   }
+
   &:active {
     background-color: var(--gray);
   }
