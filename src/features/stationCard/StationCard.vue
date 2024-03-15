@@ -30,8 +30,8 @@
           </select>
         </div>
         <div class="train__checkbox" v-if="station.info?.train_present">
-          <label :for="`twoWay-${station.uuid}`">В две стороны?</label>
-          <input type="checkbox" class="train__way" :id="`twoWay-${station.uuid}`" v-bind="twoWay" />
+          <label for="`twoWay">В две стороны?</label>
+          <input type="checkbox" class="train__way" id="`twoWay`" v-model="twoWay" />
         </div>
       </div>
       <Button @click="goToStation" v-if="station.info?.train_present">Go</Button>
@@ -102,8 +102,10 @@ const saveStationCard = async () => {
 }
 
 const goToStation = async () => {
-  if (selectedStation.value == '' || !selectedStation.value) return
+
   try {
+    if (selectedStation.value == '' || !selectedStation.value) return
+    console.log(twoWay.value)
     console.log(`Пришло: uuid:${stationProps.station.uuid}, select:${selectedStation.value}`)
     await api.setStationSchedule(stationProps.station.uuid, selectedStation.value, twoWay.value)
     selectedStation.value = ''
@@ -135,7 +137,7 @@ const goToStation = async () => {
 }
 
 .enroute {
-  background-color: rgb(238, 202, 0);
+  background-color: rgb(238, 202, 0) !important;
 }
 
 @keyframes active {

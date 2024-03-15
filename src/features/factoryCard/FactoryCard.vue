@@ -8,23 +8,14 @@
     <p class="factory__buffers">Buffers:</p>
     <hr />
     <div class="factory__buffer-list" v-if="factory_info">
-      <BufferInventoryCard
-        v-for="buf in factory_config.buffers"
-        :key="buf"
-        :inventory_name="buf"
-        :factory_uuid="factory_config.uuid"
-      />
+      <BufferInventoryCard v-for="buf in factory_config.buffers" :key="buf" :inventory_name="buf"
+        :factory_uuid="factory_config.uuid" />
     </div>
     <p class="factory__stations">Stations:</p>
     <hr />
     <div class="factory__station-list" v-if="factory_info">
-      <StationInventoryCard
-        v-for="buf in factory_config.tracks"
-        :key="buf.station_uuid"
-        :inventory_name="buf.train_inventory"
-        :factory_uuid="factory_config.uuid"
-        :station_uuid="buf.station_uuid"
-      />
+      <StationInventoryCard v-for="buf in factory_config.tracks" :key="buf.station_uuid"
+        :inventory_name="buf.train_inventory" :factory_uuid="factory_config.uuid" :station_uuid="buf.station_uuid" />
     </div>
   </div>
 </template>
@@ -84,6 +75,9 @@ const factory_info = computed(() => {
 
   &__station-list {
     overflow-x: scroll;
+
+    scrollbar-color: var(--orange) #e0e0e0;
+    scrollbar-width: thin;
   }
 
   &__buffer-list {
