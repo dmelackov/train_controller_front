@@ -1,24 +1,25 @@
-# train_controller
+# Train web-interface
+
+Web-interface for using in game with Computercraft mode version 1.18.2
 
 ## Project setup
+
+### Development mode
+
 ```
-npm install
+npm i
+npm run dev
 ```
 
-### Compiles and hot-reloads for development
+### Production mode
+
 ```
-npm run serve
+npm i
+npm build
+npm run preview
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Result
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+![station page](station.png)
+![factories page](factories.png)
